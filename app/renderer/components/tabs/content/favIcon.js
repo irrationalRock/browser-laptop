@@ -28,6 +28,17 @@ const {getSetting} = require('../../../../../js/settings')
 const appConfig = require('../../../../../js/constants/appConfig')
 const domUtil = require('../../../lib/domUtil')
 
+const isLocalFavicon = (favicon) => {
+  if (!favicon) {
+    return true
+  }
+  favicon = favicon.toLowerCase()
+  return favicon.startsWith('data:') ||
+    favicon.startsWith('chrome:') ||
+    favicon.startsWith('chrome-extension://') ||
+    favicon.startsWith('file://')
+}
+
 class Favicon extends React.Component {
   constructor (props) {
     super(props)
@@ -42,15 +53,8 @@ class Favicon extends React.Component {
 
     const props = {}
     props.isPinned = tabState.isTabPinned(state, tabId)
-    props.isTor = frame && frame.get('isPrivate') && getSetting(settings.USE_TOR_PRIVATE_TABS)
-    const favicon = faviconState.getFavicon(currentWindow, frameKey)
-    if (props.isTor) {
-      if (favicon && favicon.startsWith('data:')) {
-        props.favicon = favicon
-      }
-    } else {
-      props.favicon = favicon
-    }
+    props.isTor = frameStateUtil.isTor(frame)
+    props.favicon = faviconState.getFavicon(currentWindow, frameKey)
     props.showIcon = faviconState.showFavicon(currentWindow, frameKey)
     props.tabLoading = faviconState.showLoadingIcon(currentWindow, frameKey)
     props.tabIconColor = tabUIState.getTabIconColor(currentWindow, frameKey)
@@ -104,10 +108,9 @@ class Favicon extends React.Component {
 
     const themeLight = this.props.tabIconColor === 'white'
     const instanceStyles = { }
-    if (this.props.favicon) {
-      if (!this.props.isTor || this.props.favicon.startsWith('data:')) {
-        instanceStyles['--faviconsrc'] = `url(${this.props.favicon})`
-      }
+    if (this.props.favicon && (!this.props.isTor || isLocalFavicon(this.props.favicon))) {
+      // Ensure that remote favicons do not load in Tor mode
+      instanceStyles['--faviconsrc'] = `url(${this.props.favicon})`
     }
 
     return <TabIcon

@@ -493,6 +493,10 @@ class Frame extends React.Component {
       if (this.frame.isEmpty()) {
         return
       }
+      if (frameStateUtil.isTor(this.frame)) {
+        // This will be set as a data: URL by the page content script
+        return
+      }
       if (e.favicons &&
           e.favicons.length > 0 &&
           // Favicon changes lead to recalculation of top site data so only fire
@@ -587,7 +591,11 @@ class Frame extends React.Component {
           method = () => windowActions.setContextMenuDetail()
           break
         case messages.GOT_PAGE_FAVICON:
-          method = (dataUrl) => windowActions.setFavicon(this.frame, dataUrl)
+          method = (dataUrl) => {
+            if (frameStateUtil.isTor(this.frame)) {
+              windowActions.setFavicon(this.frame, dataUrl)
+            }
+          }
           break
       }
       method.apply(this, e.args)
