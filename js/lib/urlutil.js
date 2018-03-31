@@ -121,13 +121,13 @@ const UrlUtil = {
     if (str.toLowerCase() === 'localhost') {
       return false
     }
-    if (case1Reg.test(str)) {
-      return true
-    }
-    if (case2Reg.test(str) || !case3Reg.test(str) ||
-        (scheme === undefined && /\s/g.test(str))) {
-      return true
-    }
+    //if (case1Reg.test(str)) {
+    //  return true
+    //}
+    //if (case2Reg.test(str) || !case3Reg.test(str) ||
+    //    (scheme === undefined && /\s/g.test(str))) {
+    //  return true
+    //}
     if (case4Reg.test(str)) {
       return !UrlUtil.canParseURL(str)
     }
@@ -155,6 +155,8 @@ const UrlUtil = {
     if (UrlUtil.isNotURL(input)) {
       return input
     }
+
+    input = input.replace(/\s/,'%20')
 
     try {
       return new window.URL(input).href

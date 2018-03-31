@@ -161,6 +161,12 @@ describe('urlutil', function () {
     it('returns empty string when input is undefined', function () {
       assert.equal(urlUtil.getUrlFromInput(), '')
     })
+    it('should convert space to unicode', function () {
+      assert.equal(urlUtil.getUrlFromInput('https://www.google.ca/search?q=dog cat'), 'https://www.google.ca/search?q=dog%20cat')
+    })
+    it('calls prependScheme for file path with space', function(){
+      assert.equal(urlUtil.getUrlFromInput('/file/path/to/image name.jpg'),
+      'file:///file/path/to/image%20name.jpg');
     it('calls prependScheme', function () {
       assert.equal(urlUtil.getUrlFromInput('/file/path/to/file'), 'file:///file/path/to/file')
     })
